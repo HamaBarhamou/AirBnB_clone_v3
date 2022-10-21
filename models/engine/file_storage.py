@@ -71,7 +71,11 @@ class FileStorage:
 
     def get(self, cls, id):
         """Returns the object based on the class and its ID, or None if not found"""
-        None
+        object_all = self.all()
+        classe = str(cls).split('.')[2]
+        classe = classe[0:len(classe) - 2]
+        ob_id = classe + '.' + id
+        return (object_all[ob_id])
 
     def count(self, cls=None):
         """
