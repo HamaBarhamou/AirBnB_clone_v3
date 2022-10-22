@@ -5,13 +5,14 @@ starts a Flask web application
 
 from operator import imod
 from flask import Flask
-from api.v1.views import app_views
+from api.v1.views import app_views, app_views_state
 from models import *
 from os import getenv
 
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
+app.register_blueprint(app_views_state)
 
 
 @app.teardown_appcontext
