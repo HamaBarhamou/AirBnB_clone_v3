@@ -3,11 +3,14 @@
 starts a Flask web application
 """
 
+from email import message
 from operator import imod
 from flask import Flask
 from api.v1.views import app_views, app_views_state
 from models import *
 from os import getenv
+from flask import jsonify, make_response
+from werkzeug.exceptions import HTTPException
 
 
 app = Flask(__name__)
@@ -19,6 +22,11 @@ app.register_blueprint(app_views_state)
 def teardown_db(exception):
     """closes the storage on teardown"""
     storage.close()
+
+
+@app.errorhandler(HTTPException)
+def no_found(e):
+    return jsonify({"error": "Not found"}), e.code
 
 
 if __name__ == '__main__':
