@@ -81,12 +81,7 @@ def states(state_id=None,):
         if state is None:
             return jsonify({"error": "Not found"}), 404
 
-        #state.name = data['name']
-        #storage.save()
-        dic=state.to_dict()
-        for key, values in data.items():
-            dic[key]=values
-        
-        print(dic)
+        state.name = data['name']
+        storage.save()
 
         return jsonify(state.to_dict()), 200
