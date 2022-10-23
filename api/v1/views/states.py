@@ -4,6 +4,8 @@ states api
 """
 
 from unicodedata import name
+
+from sqlalchemy import values
 from models import storage
 from models.state import State
 from api.v1.views import app_views_states
@@ -80,6 +82,8 @@ def states(state_id=None,):
         if state == None:
             return jsonify({"error": "Not found"}), 404
         
-        print(state)
+        state.name = data['name']
+        storage.save()
+        print(state.name)
 
-        return jsonify({"error": "PUT message"}), 404
+        return jsonify(state.to_dict()), 200
