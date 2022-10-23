@@ -33,7 +33,7 @@ def states(state_id=None,):
             for loop in result:
                 if state_id == loop['id']:
                     return loop
-            return jsonify({"error": "Not found"}), '404'
+            return jsonify({"error": "Not found"}), 404
 
         return result
     
@@ -41,4 +41,12 @@ def states(state_id=None,):
         return jsonify({"states": "POST methode"})
 
     if request.method == 'DELETE':
-        return jsonify({"states": "DELETE methode"})
+        reponse = storage.all(State).values()
+        for loop in reponse:
+            if state_id == loop.to_dict()["id"]:
+                storage.delete(loop)
+                storage.save()
+                #print(loop, " : ", type(loop))
+                return jsonify({}), 200
+
+        return jsonify({"error": "Not found"}), 404
