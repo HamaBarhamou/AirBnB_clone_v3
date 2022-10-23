@@ -62,3 +62,7 @@ def states(state_id=None,):
                 return jsonify({}), 200
 
         return jsonify({"error": "Not found"}), 404
+
+    if request.method == 'PUT':
+        reponse = storage.all(State).values()
+        return jsonify({"error": "PUT message"}), 404
