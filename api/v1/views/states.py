@@ -14,7 +14,7 @@ from werkzeug.exceptions import HTTPException
                         methods = ['GET'])
 @app_views_states.route('/states/<state_id>',
                         strict_slashes=False, 
-                        methods = ['POST', 'GET'])
+                        methods = ['POST', 'GET', 'DELETE'])
 def states(state_id=None,):
     if request.method == 'GET':
         reponse = storage.all(State).values()
@@ -39,3 +39,6 @@ def states(state_id=None,):
     
     if request.method == 'POST':
         return jsonify({"states": "POST methode"})
+
+    if request.method == 'DELETE':
+        return jsonify({"states": "DELETE methode"})
