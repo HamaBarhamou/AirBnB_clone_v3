@@ -64,5 +64,22 @@ def states(state_id=None,):
         return jsonify({"error": "Not found"}), 404
 
     if request.method == 'PUT':
+        data = request.get_json()
+
+        if type(data) is not dict:
+            return jsonify({"error": "Not a JSON"}), 400
+        if "name" not in data:
+            return jsonify({"error": "Missing name"}), 400
+            
         reponse = storage.all(State).values()
+        state = None
+        for loop in reponse:
+            if state_id == loop.id:
+                state = loop
+                break
+        if state == None:
+            return jsonify({"error": "Not found"}), 404
+        
+        print(state)
+
         return jsonify({"error": "PUT message"}), 404
