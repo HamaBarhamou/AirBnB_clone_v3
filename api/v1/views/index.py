@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 """Retrieves number for each type"""
 
-from api.v1.views import app_views, app_views_state
+from api.v1.views import app_views
 from flask import jsonify
 from models.amenity import Amenity
 from models.city import City
@@ -17,7 +17,7 @@ def status():
     return jsonify({"status": "OK"})
 
 
-@app_views_state.route('/stats', strict_slashes=False)
+@app_views.route('/stats', strict_slashes=False)
 def stats():
     return jsonify(
         {

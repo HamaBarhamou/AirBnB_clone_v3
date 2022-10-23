@@ -6,8 +6,7 @@ starts a Flask web application
 from email import message
 from operator import imod
 from flask import Flask
-from api.v1.views import app_views, app_views_state
-from api.v1.views import app_views_states
+from api.v1.views import app_views
 from models import *
 from os import getenv
 from flask import jsonify, make_response
@@ -16,8 +15,6 @@ from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
-app.register_blueprint(app_views_state)
-app.register_blueprint(app_views_states)
 
 
 @app.teardown_appcontext
