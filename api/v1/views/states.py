@@ -3,6 +3,7 @@
 states api
 """
 
+from unicodedata import name
 from models import storage
 from models.state import State
 from api.v1.views import app_views_states
@@ -11,10 +12,10 @@ from werkzeug.exceptions import HTTPException
 
 @app_views_states.route('/states',
                         strict_slashes=False, 
-                        methods = ['GET'])
+                        methods = ['GET', 'POST'])
 @app_views_states.route('/states/<state_id>',
                         strict_slashes=False, 
-                        methods = ['POST', 'GET', 'DELETE'])
+                        methods = ['PUT', 'GET', 'DELETE'])
 def states(state_id=None,):
     if request.method == 'GET':
         reponse = storage.all(State).values()
@@ -38,7 +39,19 @@ def states(state_id=None,):
         return result
     
     if request.method == 'POST':
-        return jsonify({"states": "POST methode"})
+        data = request.get_json()
+
+        if type(data) is not dict:
+            return jsonify({"error": "Not a JSON"}), 400
+        if "name" not in data:
+            return jsonify({"error": "Missing name"}), 400
+
+        obj = State(name=data['name'])
+        
+        storage.new(obj)
+        storage.save()
+
+        return jsonify(obj.to_dict()), 201
 
     if request.method == 'DELETE':
         reponse = storage.all(State).values()
@@ -46,7 +59,6 @@ def states(state_id=None,):
             if state_id == loop.to_dict()["id"]:
                 storage.delete(loop)
                 storage.save()
-                #print(loop, " : ", type(loop))
                 return jsonify({}), 200
 
         return jsonify({"error": "Not found"}), 404
