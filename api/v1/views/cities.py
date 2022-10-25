@@ -54,6 +54,7 @@ def createCitie(state_id):
                  strict_slashes=False,
                  methods=['DELETE'])
 def delCitie(state_id):
+    """comment"""
     pass
 
 
