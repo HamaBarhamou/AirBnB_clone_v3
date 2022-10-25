@@ -54,6 +54,7 @@ def delete_user(user_id):
     strict_slashes=False)
 def post_user():
     """Creates a user"""
+    print('hello user')
     user_dict = request.get_json()
     if not user_dict:
         return (jsonify({'error': 'Not a JSON'}), 400)
