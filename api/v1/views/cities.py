@@ -74,12 +74,19 @@ def updateCitie(city_id):
     return jsonify(citie.to_dict()), 200
 
 
-@app_views.route('/states/<state_id>/cities',
+@app_views.route('/cities/<city_id>',
                  strict_slashes=False,
                  methods=['DELETE'])
-def delCitie(state_id):
-    """comment"""
-    pass
+def delCitie(city_id):
+    citie = storage.get(City, city_id)
+
+    if citie is None:
+        abort(404)
+
+    storage.delete(citie)
+    storage.save()
+
+    return jsonify({}), 200
 
 
 @app_views.route('/cities/<city_id>',
