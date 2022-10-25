@@ -4,7 +4,6 @@ cities api
 """
 
 
-from os import abort
 from models import storage
 from models.city import City
 from models.state import State
