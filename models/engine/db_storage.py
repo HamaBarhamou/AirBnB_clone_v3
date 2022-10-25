@@ -81,7 +81,10 @@ class DBStorage:
         classe = str(cls).split('.')[2]
         classe = classe[0:len(classe) - 2]
         ob_id = classe + '.' + id
-        return (object_all[ob_id])
+        if ob_id in object_all:
+            return (object_all[ob_id])
+        else:
+            return None
 
     def count(self, cls=None):
         """

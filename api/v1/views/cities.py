@@ -6,11 +6,10 @@ states api
 
 from models import storage
 from models.city import City
+from models.state import State
 from api.v1.views import app_views
 from flask import jsonify, request, redirect
 from werkzeug.exceptions import HTTPException
-import requests
-from os import getenv
 
 
 @app_views.route('/states/<state_id>/cities',
@@ -20,10 +19,30 @@ from os import getenv
                  strict_slashes=False,
                  methods=['GET', 'DELETE', 'PUT'])
 def Cities(state_id=None, city_id=None):
-    HBNB_API_HOST = getenv('HBNB_API_HOST')
+    if state_id is not None:
+        state = storage.get(State, state_id)
+        if state is None:
+            return jsonify({"error": "Not found"}), 404
+
     if request.method == 'GET':
-        """x = requests.get('https://w3schools.com/python/demopage.htm')
-        x = requests.get('http://'+HBNB_API_HOST+'/api/v1/states/{}'
-                         .format(state_id))
-        print("status code:",x.status_code)"""
+        cities = storage.all(City)
+        #print(state.to_dict())
+        print(cities)
+        tab=[]
+        for city in cities:
+            pass
         return jsonify({"msg": "Cities List all"}), 200
+
+    if request.method == 'POST':
+        data = request.get_json()
+        if type(data) is not dict:
+            return jsonify({"error": "Not a JSON"}), 400
+        if "name" not in data:
+            return jsonify({"error": "Missing name"}), 400
+
+        obj = City(name=data['name'], state_id=state_id)
+
+        storage.new(obj)
+        storage.save()
+
+        return jsonify(obj.to_dict()), 201

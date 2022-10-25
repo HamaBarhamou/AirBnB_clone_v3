@@ -4,84 +4,73 @@ states api
 """
 
 
+from sqlalchemy import values
 from models import storage
 from models.state import State
 from api.v1.views import app_views
-from flask import jsonify, request, redirect
+from flask import jsonify, request, redirect, abort
 from werkzeug.exceptions import HTTPException
 
 
-@app_views.route('/states',
-                 strict_slashes=False,
-                 methods=['GET', 'POST'])
+@app_views.route('/states', strict_slashes=False, methods=['GET'])
+def getState():
+    states = storage.all(State).values()
+    liste = []
+    for loop in states:
+        liste.append(loop.to_dict())
+    return liste, 200
+
+
+@app_views.route('/states', strict_slashes=False, methods=['POST'])
+def creatState():
+    data = request.get_json()
+
+    if type(data) is not dict:
+        abort(404, "Not a JSON")
+    if "name" not in data:
+        abort(400, "Missing name")
+    state = State(**data)
+    storage.new(state)
+    storage.save()
+    return jsonify(state.to_dict()), 201
+
+
 @app_views.route('/states/<state_id>',
-                 strict_slashes=False,
-                 methods=['PUT', 'GET', 'DELETE'])
-def states(state_id=None,):
-    if request.method == 'GET':
-        reponse = storage.all(State).values()
-        result = []
-        for loop in reponse:
-            r = loop.to_dict()
-            dic = {}
-            dic['__class__'] = r['__class__']
-            dic['created_at'] = r['created_at']
-            dic['id'] = r['id']
-            dic['name'] = r['name']
-            dic['updated_at'] = r['updated_at']
-            result.append(dic)
+                 strict_slashes=False, methods=['GET'])
+def getStateById(state_id):
+    state = storage.get(State, state_id)
+    if state is None:
+        abort(404)
+    return jsonify(state.to_dict())
 
-        if state_id is not None:
-            for loop in result:
-                if state_id == loop['id']:
-                    return loop
-            return jsonify({"error": "Not found"}), 404
 
-        return result
+@app_views.route('/states/<state_id>',
+                 strict_slashes=False, methods=['DELETE'])
+def delSate(state_id):
+    state = storage.get(State, state_id)
+    if state is None:
+        abort(404)
+    storage.delete(state)
+    storage.save()
+    return jsonify({}), 200
 
-    if request.method == 'POST':
-        data = request.get_json()
 
-        if type(data) is not dict:
-            return jsonify({"error": "Not a JSON"}), 400
-        if "name" not in data:
-            return jsonify({"error": "Missing name"}), 400
+@app_views.route('/states/<state_id>', strict_slashes=False, methods=['PUT'])
+def updateState(state_id):
+    data = request.get_json()
 
-        obj = State(name=data['name'])
+    if type(data) is not dict:
+        abort(404, "Not a JSON")
+    if "name" not in data:
+        abort(400, "Missing name")
 
-        storage.new(obj)
-        storage.save()
-
-        return jsonify(obj.to_dict()), 201
-
-    if request.method == 'DELETE':
-        reponse = storage.all(State).values()
-        for loop in reponse:
-            if state_id == loop.to_dict()["id"]:
-                storage.delete(loop)
-                storage.save()
-                return jsonify({}), 200
-
-        return jsonify({"error": "Not found"}), 404
-
-    if request.method == 'PUT':
-        data = request.get_json()
-
-        if type(data) is not dict:
-            return jsonify({"error": "Not a JSON"}), 400
-        if "name" not in data:
-            return jsonify({"error": "Missing name"}), 400
-
-        reponse = storage.all(State).values()
-        state = None
-        for loop in reponse:
-            if state_id == loop.id:
-                state = loop
-                break
-        if state is None:
-            return jsonify({"error": "Not found"}), 404
-
-        state.name = data['name']
-        storage.save()
-
-        return jsonify(state.to_dict()), 200
+    state = storage.get(State, state_id)
+    if state is None:
+        abort(404)
+    black_list = ["id", "created_at", "updated_at"]
+    for key, value in data.items():
+        if key not in black_list:
+            print(key, value)
+            setattr(state, key, value)
+    storage.save()
+    return jsonify(state.to_dict()), 200
