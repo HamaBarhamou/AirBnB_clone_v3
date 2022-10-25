@@ -1,22 +1,22 @@
 #!/usr/bin/python3
 """
-states api
+cities api
 """
 
 
-from os import abort, stat
+from os import abort
 from models import storage
 from models.city import City
 from models.state import State
 from api.v1.views import app_views
 from flask import jsonify, abort, request
-from werkzeug.exceptions import HTTPException
 
 
 @app_views.route('/states/<state_id>/cities',
                  strict_slashes=False,
                  methods=['GET'])
 def getCities(state_id):
+    """Returns JSON cities in a given state"""
     state = storage.get(State, state_id)
     if state is None:
         abort(404)
@@ -33,6 +33,7 @@ def getCities(state_id):
                  strict_slashes=False,
                  methods=['POST'])
 def createCitie(state_id):
+    """create a Citie"""
     data = request.get_json()
     state = storage.get(State, state_id)
     if state is None:
@@ -54,6 +55,7 @@ def createCitie(state_id):
                  strict_slashes=False,
                  methods=['PUT'])
 def updateCitie(city_id):
+    """Update a cities"""
     data = request.get_json()
     if type(data) is not dict:
         return jsonify({"error": "Not a JSON"}), 404
@@ -78,6 +80,7 @@ def updateCitie(city_id):
                  strict_slashes=False,
                  methods=['DELETE'])
 def delCitie(city_id):
+    """Delette a cities"""
     citie = storage.get(City, city_id)
 
     if citie is None:
@@ -93,6 +96,7 @@ def delCitie(city_id):
                  strict_slashes=False,
                  methods=['GET'])
 def getCitieById(city_id):
+    """get citie by id"""
     citie = storage.get(City, city_id)
     if citie is None:
         abort(404)
