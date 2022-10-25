@@ -75,3 +75,12 @@ def creatCitie(state_id):
                  methods=['DELETE'])
 def delCitie(state_id):
     pass
+
+
+@app_views.route('/api/v1/cities/<city_id>',
+                 strict_slashes=False,
+                 methods=['GET'])
+def getCitieById(city_id):
+    citie = storage.get(City, city_id)
+    if citie is None:
+        abort(404)
