@@ -50,6 +50,29 @@ def createCitie(state_id):
     return jsonify(citie.to_dict()), 200
 
 
+@app_views.route('/states/cities/<city_id>',
+                 strict_slashes=False,
+                 methods=['PUT'])
+def updateCitie(city_id):
+    data = request.get_json()
+    if type(data) is not dict:
+        return jsonify({"error": "Not a JSON"}), 404
+
+    citie = storage.get(City, city_id)
+    if citie is None:
+        abort(404)
+
+    black_list = ["id", "created_at", "updated_at"]
+    
+    for key, values in data.items():
+        if key not in black_list:
+            setattr(citie, key, values)
+
+    storage.save()
+    
+    return jsonify(citie.to_dict()), 200
+
+
 @app_views.route('/states/<state_id>/cities',
                  strict_slashes=False,
                  methods=['DELETE'])

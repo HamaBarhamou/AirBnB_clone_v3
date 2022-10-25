@@ -70,7 +70,6 @@ def updateState(state_id):
     black_list = ["id", "created_at", "updated_at"]
     for key, value in data.items():
         if key not in black_list:
-            print(key, value)
             setattr(state, key, value)
     storage.save()
     return jsonify(state.to_dict()), 200
