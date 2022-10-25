@@ -4,12 +4,12 @@ states api
 """
 
 
-from os import abort
+from os import abort, stat
 from models import storage
 from models.city import City
 from models.state import State
 from api.v1.views import app_views
-from flask import jsonify, abort
+from flask import jsonify, abort, request
 from werkzeug.exceptions import HTTPException
 
 
@@ -32,8 +32,22 @@ def getCities(state_id):
 @app_views.route('/states/<state_id>/cities',
                  strict_slashes=False,
                  methods=['POST'])
-def creatCitie(state_id):
-    pass
+def createCitie(state_id):
+    data = request.get_json()
+    state = storage.get(State, state_id)
+    if state is None:
+        abort(404)
+    if type(data) is not dict:
+        return jsonify({"error": "Not a JSON"}), 404
+    if "name" not in data:
+        return jsonify({"error": "Missing name"}), 400
+
+    citie = City(**data)
+    citie.state_id = state_id
+    storage.new(citie)
+    storage.save()
+
+    return jsonify(citie.to_dict()), 200
 
 
 @app_views.route('/states/<state_id>/cities',
