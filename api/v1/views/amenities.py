@@ -1,83 +1,76 @@
 #!/usr/bin/python3
-"""
-amenities api
-"""
-
-
-from os import abort
-from models import storage
-from models.amenity import Amenity
+"""Amenities"""
 from api.v1.views import app_views
-from flask import jsonify, abort, request
+from flask import request, jsonify, abort
+from models import storage, amenity
 
 
-@app_views.route('/amenities',
-                 strict_slashes=False,
-                 methods=['GET'])
-def getAmenities():
-   am = storage.all(Amenity).values()
-   tab = []
-   for loop in am:
-       tab.append(loop.to_dict())
-   return tab, 200
+@app_views.route('/amenities', methods=['GET'], strict_slashes=False)
+def getallamenities():
+    """Gets all amenities"""
+    res = []
+    for i in storage.all("Amenity").values():
+        res.append(i.to_dict())
+
+    return jsonify(res)
 
 
-@app_views.route('/amenities',
-                 strict_slashes=False,
-                 methods=['POST'])
-def creat_Amenities():
-    data = request.get_json()
+@app_views.route('/amenities/<amenity_id>', methods=['GET'],
+                 strict_slashes=False)
+def getamenity(amenity_id=None):
+    """Gets an amenity"""
+    s = storage.get("Amenity", amenity_id)
+    if s is None:
+        abort(404)
+    else:
+        return jsonify(s.to_dict())
 
-    if type(data) is not dict:
-        abort(404, "Not a JSON")
-    if "name" not in data:
+
+@app_views.route('/amenities/<amenity_id>', methods=['DELETE'],
+                 strict_slashes=False)
+def deleteamenity(amenity_id=None):
+    """Deletes an amenity"""
+    s = storage.get("Amenity", amenity_id)
+    if s is None:
+        abort(404)
+    else:
+        storage.delete(obj)
+        storage.save()
+        return jsonify({}), 200
+
+
+@app_views.route('/amenities', methods=['POST'], strict_slashes=False)
+def createamenity():
+    """Create an amenity"""
+    s = request.get_json(silent=True)
+    if s is None:
+        abort(400, "Not a JSON")
+    elif "name" not in s.keys():
         abort(400, "Missing name")
-    am = Amenity(**data)
-    storage.new(am)
-    storage.save()
-    return jsonify(am.to_dict()), 201
+    else:
+        new_s = amenities.Amenity(**s)
+        storage.new(new_s)
+        storage.save()
+        return jsonify(new_s.to_dict()), 201
 
 
-@app_views.route('/amenities/<amenity_id>',
-                 strict_slashes=False,
-                 methods=['GET'])
-def getAmenities_By_Id(amenity_id):
-    am = storage.get(Amenity, amenity_id)
-    if am is None:
+@app_views.route('/amenities/<amenity_id>', methods=['PUT'],
+                 strict_slashes=False)
+def updateamenity(amenity_id=None):
+    """Update an amenity"""
+    obj = storage.get("Amenity", amenity_id)
+    if obj is None:
         abort(404)
-    return jsonify(am.to_dict()), 200
 
-
-@app_views.route('/amenities/<amenity_id>',
-                 strict_slashes=False,
-                 methods=['DELETE'])
-def delAmeneities(amenity_id):
-    am = storage.get(Amenity, amenity_id)
-    if am is None:
-        abort(404)
-    storage.delete(am)
-    storage.save()
-    return jsonify({}), 200
-
-
-@app_views.route('/amenities/<amenity_id>',
-                 strict_slashes=False,
-                 methods=['PUT'])
-def update_Amenitie(amenity_id):
-    print("hello update")
-    data = request.get_json()
-
-    if type(data) is not dict:
-        abort(404, "Not a JSON")
-    if "name" not in data:
-        abort(400, "Missing name")
-
-    am = storage.get(Amenity, amenity_id)
-    if am is None:
-        abort(404)
-    black_list = ["id", "created_at", "updated_at"]
-    for key, value in data.items():
-        if key not in black_list:
-            setattr(am, key, value)
-    storage.save()
-    return jsonify(am.to_dict()), 200
+    s = request.get_json(silent=True)
+    if s is None:
+        abort(400, "Not a JSON")
+    else:
+        for k, v in s.items():
+            if k in ['id', 'created_at', 'updated_at']:
+                pass
+            else:
+                setattr(obj, k, v)
+        storage.save()
+        res = obj.to_dict()
+        return jsonify(res), 200

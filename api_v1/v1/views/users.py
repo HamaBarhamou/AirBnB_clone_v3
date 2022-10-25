@@ -54,6 +54,7 @@ def delete_user(user_id):
     strict_slashes=False)
 def post_user():
     """Creates a user"""
+    print('hello user')
     user_dict = request.get_json()
     if not user_dict:
         return (jsonify({'error': 'Not a JSON'}), 400)
@@ -76,7 +77,7 @@ def put_user(user_id):
     user_dict = request.get_json()
     if not user_dict:
         return (jsonify({'error': 'Not a JSON'}), 400)
-    user = storage.get('User', city_id)
+    user = storage.get('User', user_id)
     if user:
         for key in user_dict.keys():
             if key not in ignore_keys:
